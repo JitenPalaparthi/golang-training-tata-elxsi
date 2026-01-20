@@ -7,6 +7,8 @@ const (
 	MIN = 60
 )
 
+var Counter int = 999999 // global/package level variable --> some programming call them as static variabls
+
 //group of constants
 //var hours = 24 // Varaibles are evaluated at rumtime
 
@@ -16,6 +18,15 @@ func main() {
 		DAY  = 60*HOUR + 0 // The whole calculation should be known to the compiler
 	)
 
+	stackCounter := 100 // stack memory
+	println(stackCounter)
+
+	Incr()
+	println(Counter)
+}
+
+func Incr() {
+	Counter++
 }
 
 /*
