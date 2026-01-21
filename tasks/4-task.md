@@ -1,1 +1,1 @@
-- Write a program to print 10o prime numbers
+- Write a program to print 100 prime numbers
