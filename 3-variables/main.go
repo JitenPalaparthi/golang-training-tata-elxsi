@@ -1,5 +1,7 @@
 package main
 
+import "math/rand/v2"
+
 const PI float32 = 3.14
 
 const (
@@ -7,7 +9,11 @@ const (
 	MIN = 60
 )
 
-var Counter int = 999999 // global/package level variable --> some programming call them as static variabls
+var Counter int = rand.IntN(1000) // global/package level variable --> some programming call them as static variabls
+
+func Incr() {
+	Counter++
+}
 
 //group of constants
 //var hours = 24 // Varaibles are evaluated at rumtime
@@ -23,10 +29,6 @@ func main() {
 
 	Incr()
 	println(Counter)
-}
-
-func Incr() {
-	Counter++
 }
 
 /*
