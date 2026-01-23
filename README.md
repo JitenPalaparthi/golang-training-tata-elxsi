@@ -41,12 +41,13 @@ go build -ldflags="-w -s" -o release_demo main.go
 go env
 ```
 
-GOROOT, GOPATH,GOBIN, GOARCH,GOOS
+GOROOT, GOPATH,GOBIN,GOOS,GOARCH
 
 ## go cross compile options
 
 ```bash
  go tool dist list
+ GOOS=windows GOARCH=amd64 go build -o slice_demo_win_amd.exe main.go
  ```
 ```bash
 aix/ppc64
