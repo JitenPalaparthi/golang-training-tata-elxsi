@@ -62,6 +62,19 @@ func main() {
 	p4.PrintPerson()
 	PrintPerson(p5)
 	p5.PrintPerson()
+
+	println(p5.Address.City)
+
+	s1 := Student{Id: 1231, Name: "Jiten", Address: Address{Line1: "Kesavadasapuram", City: "Trivandrum", Pincode: "695011"}}
+	println(s1.City)
+	fmt.Println(s1)
+	s1.PrintAddress()
+
+	s2 := Student{Id: 1231, Name: "Jiten", Status: "active", Address: Address{Line1: "Kesavadasapuram", City: "Trivandrum", Pincode: "695011"}, SocialMedia: SocialMedia{Accounts: map[string]string{"linkedin": "linkedin.com/jpalaparthi"}, Status: "active"}}
+	s2.PrintStudent()
+
+	println("student", s2.Status)
+	println("student social media", s2.SocialMedia.Status)
 }
 
 // struct with anonymous fields
@@ -80,6 +93,19 @@ type Person struct {
 	Id      int
 	Name    string
 	Address *Address // can give both field name as the type, no issues in Golangv, composition
+}
+
+type Student struct {
+	Id          int
+	Name        string
+	Status      string
+	Address     // Promoted field, some sense of inheritance way of accessing but thru composition
+	SocialMedia // promoted field
+}
+
+type SocialMedia struct {
+	Accounts map[string]string
+	Status   string
 }
 
 func PrintPerson(p Person) { // It is a function
@@ -103,13 +129,31 @@ func (p Person) PrintPerson() { // It is a method, attached to Person type
 	println("Calling a method on Person type")
 	println("Id:", p.Id)
 	println("Name:", p.Name)
-	println("Address:")
 	if p.Address != nil {
-		println("Line1:", p.Address.Line1)
-		println("City:", p.Address.City)
-		println("Pincode:", p.Address.Pincode)
-	} else {
-		println("No address")
+		p.Address.PrintAddress()
 	}
 	println("-----------\n")
+}
+
+func (s Student) PrintStudent() { // It is a method, attached to Person type
+	println()
+	println("Calling a method on Person type")
+	println("Id:", s.Id)
+	println("Name:", s.Name)
+	println("Status", s.Status)
+	s.PrintAddress()
+
+	for k, v := range s.Accounts {
+		println(k, "-->", v)
+	}
+	println("Social Media active:", s.SocialMedia.Status)
+
+	println("-----------\n")
+}
+
+func (a Address) PrintAddress() {
+	println("Address:")
+	println("Line1:", a.Line1)
+	println("City:", a.City)
+	println("Pincode:", a.Pincode)
 }
