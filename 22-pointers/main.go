@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 var Counter int = 100
 
@@ -23,9 +25,24 @@ func main() {
 
 	var str1 = "Hello World"
 	ptr3 = &str1 // What addresss of the string is there
-	fmt.Println(ptr3)
+	if ptr3 == nil {
+		println("nil pointer string")
+	} else {
+
+		fmt.Println(ptr3, *ptr3)
+	}
+
+	/*
+		String Header
+		------------
+		Ptr
+		Len
+
+	*/
 
 	//var ptr4 *byte =
+
+	*ptr3 = "你好，世界, How are you doing! "
 
 	bytes := ([]byte)(str1) // This is the ptr inside string header
 
@@ -33,10 +50,24 @@ func main() {
 	fmt.Println(ptr4)
 	*ptr4 = 66
 
-	fmt.Println(string(bytes))
+	println("len of bytes:", len(bytes))
+	for i := 0; i < len(bytes); i++ {
+		print(string(bytes[i]))
+	}
 
+	println()
+	//fmt.Println(string(bytes))
+
+	runes := ([]rune)(str1) // ptr, len, cap
+
+	println("len of runes:", len(runes))
+	for i := 0; i < len(runes); i++ {
+		print(string(runes[i]))
+	}
+
+	println()
 }
 
 // Pointers hold addressers
 // address --> memory location of a data
-//
+// Raw pointers --> The addresses of data
