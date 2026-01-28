@@ -1,11 +1,11 @@
 
 # Keywords 
 
-break,case,const,continue,default,fallthrough, for,func, goto,if,import, else, range, return,package,switch,var (17/25)
+break,case,const,continue,default,fallthrough, for,func, goto,if,import, else, map,range, return,package,struct,switch,type,var (20/25)
 
 # Builtin functions
 
-cap,len,make,print,println
+append,cap,clear,copy,delete,len,make,new, print,println
 
 # built-in package
 
