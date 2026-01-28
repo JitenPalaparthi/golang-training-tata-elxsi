@@ -26,6 +26,12 @@ func main() {
 	//	address of:0x102ffc980
 	//  address of:0x102ffc980
 	//  address of:0x102ffc980
+
+	var empty struct{} = struct{}{}
+	var p struct{ id int } = struct{ id int }{id: 100}
+	println(p)
+
+	fmt.Printf("address of:%p\n", &empty) // 0x104a94980
 }
 
 type A1 struct{} // Size is zero
