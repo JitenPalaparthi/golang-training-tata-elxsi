@@ -92,3 +92,9 @@ type myint3 int // myint is a new type
 func (mi myint3) Cube() int {
 	return int(mi * mi * mi)
 }
+
+type myint4 myint1
+
+// What types can be casted ?
+// create a float32 and float64 and call ToString,Sq, Cube methods
+// call ToString,Sq,Cube methofs on myint4 type
