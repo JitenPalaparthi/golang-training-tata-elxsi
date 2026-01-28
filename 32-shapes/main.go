@@ -42,5 +42,5 @@ func main() {
 // The root path of the package is the name of the module which is given in go.mod file
 
 // Create a new package circle and write Area and Perimeter methods aliong with New func
-// Create a new package triangle and write Area and perimeter methods along with New func
+// Create a new package triangle and write Area and Perimeter methods along with New func
 // Call them in main
