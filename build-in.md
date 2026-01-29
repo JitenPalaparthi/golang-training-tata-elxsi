@@ -5,7 +5,7 @@ break,case,const,continue,default,fallthrough, for,func, goto,if,import, else, m
 
 # Builtin functions
 
-append,cap,clear,copy,delete,len,make,new, print,println
+append,cap,clear,complex,copy,delete,len,make,max,min,new, print,println
 
 # built-in package
 
