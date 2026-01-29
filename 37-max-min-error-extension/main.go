@@ -80,4 +80,5 @@ func (s *SlcieError) Error() string {
 // that error must be a customised error
 // RectError Code, Msg
 // if rect nil return error
-// if l or b is 0 return error saying that length or brewdth is zero something like
+// if l or b is 0 return error saying that length or breadth is zero something like
+// check between normal error with string and a customised error ..
