@@ -27,6 +27,7 @@ func handler(pattern string, data any, handle func() string) string {
 	return handle()
 }
 
+// tasks
 // calc function create this like
 /*
 func calc(a, b any, fn func(any, any) any) any {
