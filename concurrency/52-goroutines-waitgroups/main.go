@@ -39,9 +39,7 @@ func init() {
 }
 
 func main() {
-
 	defer wg.Wait()
-
 	//wg.Add(3) // can give directly number of goroutines
 	wg.Add(1) //+1
 	go func() {
@@ -82,7 +80,6 @@ func main() {
 			//go DoWorkWg(wg)
 			i++
 		}
-
 	}()
 
 	// //runtime.Goexit()
