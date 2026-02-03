@@ -36,7 +36,7 @@ func GenerateFib(d time.Duration) <-chan int {
 }
 
 // This is our own time out
-// There is something called TimeAfter --> please use that ..
+// There is something called time.After --> please use that ..
 
 func TimeOut(d time.Duration) chan struct{} {
 	timeout := make(chan struct{})
