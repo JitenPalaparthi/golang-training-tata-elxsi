@@ -12,6 +12,7 @@ type UserDB struct {
 
 type IUserDB interface {
 	Create(user *models.User) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 }
 
 func NewUserDB(db *gorm.DB) *UserDB {
@@ -23,9 +24,17 @@ func (u *UserDB) Create(user *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	//luser, err := u.GetUserByEmail(user.Email)
+
 	tx := u.DB.Create(user)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 	return user, nil
+}
+
+func (u *UserDB) GetUserByEmail(email string) (*models.User, error) {
+	user := new(models.User)
+	tx := u.DB.Where("email = ?", email).First(user)
+	return user, tx.Error
 }

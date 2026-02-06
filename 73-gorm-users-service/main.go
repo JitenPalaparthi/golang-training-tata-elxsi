@@ -50,12 +50,15 @@ func main() {
 		panic(err.Error())
 	}
 
+	jwtSecret := "my_jwt_secret"
+
 	userDB := database.NewUserDB(db)
-	userHandler := handlers.NewUserHandler(userDB)
+	userHandler := handlers.NewUserHandler(userDB, jwtSecret)
 
 	userRouter := router.Group("/v1/public")
 
 	userRouter.POST("/user", userHandler.Create)
+	userRouter.POST("/user/login", userHandler.Login)
 
 	slog.Info("The application is listening on port:" + PORT)
 	if err := router.Run("0.0.0.0:" + PORT); err != nil {

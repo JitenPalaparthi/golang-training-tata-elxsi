@@ -11,11 +11,12 @@ import (
 )
 
 type UserHandler struct {
-	UsersDB *database.UserDB
+	UsersDB   *database.UserDB
+	JWTSecret string
 }
 
-func NewUserHandler(userDb *database.UserDB) *UserHandler {
-	return &UserHandler{userDb}
+func NewUserHandler(userDb *database.UserDB, jwtSecret string) *UserHandler {
+	return &UserHandler{UsersDB: userDb, JWTSecret: jwtSecret}
 }
 
 func (uh *UserHandler) Create(ctx *gin.Context) {
@@ -62,4 +63,45 @@ func (uh *UserHandler) Create(ctx *gin.Context) {
 
 	ctx.JSON(201, user)
 
+}
+
+func (uh *UserHandler) Login(ctx *gin.Context) {
+	userLogin := new(models.UserLogin)
+	err := ctx.Bind(userLogin)
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Something went wrong")
+		ctx.Abort()
+		return
+	}
+	user, err := uh.UsersDB.GetUserByEmail(userLogin.Email)
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Something went wrong")
+		ctx.Abort()
+		return
+	}
+
+	err = security.VerifyPassword(userLogin.Password, user.Password)
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Invalid email or passowrd")
+		ctx.Abort()
+		return
+	}
+
+	//ctx.String(201, "User successfully login")
+
+	// Here need to return the JWT token
+
+	token, err := security.GenerateJWT(user.Name, user.Email, uh.JWTSecret)
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Error in issuing the token")
+		ctx.Abort()
+		return
+	}
+
+	ctx.JSON(201, map[string]string{"token": token})
+	//ctx.JSON(201,gin.H{"token":token})
 }
