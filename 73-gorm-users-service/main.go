@@ -1,0 +1,66 @@
+package main
+
+import (
+	"flag"
+	"log/slog"
+	"os"
+	"runtime"
+	"user-service/database"
+	"user-service/handlers"
+
+	"github.com/gin-gonic/gin"
+)
+
+var (
+	PORT, DB_URL string
+)
+
+func init() {
+
+	PORT = os.Getenv("APP_PORT")
+	DB_URL = os.Getenv("DB_URL")
+	// if PORT == "" {
+	// 	PORT = "8083"
+	// }
+	// "host=localhost user=postgres password=postgres dbname=usersdb port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+}
+
+func main() {
+
+	//args := os.Args
+
+	if PORT == "" {
+		flag.StringVar(&PORT, "port", "8083", "provide the port. If port is not envirement and not given thru options , it takes the default port")
+	}
+
+	if DB_URL == "" {
+		flag.StringVar(&DB_URL, "db", `host=localhost user=postgres password=postgres dbname=usersdb port=5432 sslmode=disable TimeZone=Asia/Shanghai`, "give postgres db connection")
+	}
+
+	flag.Parse()
+
+	router := gin.Default()
+
+	router.GET("/", handlers.Root)
+	router.GET("/ping", handlers.Ping)
+	router.GET("/health", handlers.Health)
+
+	db, err := database.ConnectDb(DB_URL)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	userDB := database.NewUserDB(db)
+	userHandler := handlers.NewUserHandler(userDB)
+
+	userRouter := router.Group("/v1/public")
+
+	userRouter.POST("/user", userHandler.Create)
+
+	slog.Info("The application is listening on port:" + PORT)
+	if err := router.Run("0.0.0.0:" + PORT); err != nil {
+		slog.Error(err.Error())
+		runtime.Goexit()
+	}
+
+}
