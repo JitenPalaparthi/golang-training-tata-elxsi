@@ -58,3 +58,12 @@ HEADER.PAYLOAD.SIGNATURE
 
 - HMACSHA256(base64UrlEncode(header)+"."+base64UrlEncode(payload)),secret
 
+-- Task 
+
+Write a middle ware to take the request data , method type and audit it in a file 
+
+Every request that hits the router, it should be saved in a file in json format 
+{
+    "req_data":{},
+    "headers":{}
+}
