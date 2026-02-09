@@ -18,7 +18,7 @@ func NewProductHandler(jwtSecret string) *ProductHandler {
 func (uh *ProductHandler) Create(ctx *gin.Context) {
 	product := make(map[string]any)
 
-	err := ctx.Bind(product)
+	err := ctx.Bind(&product)
 
 	if err != nil {
 		slog.Error(err.Error())

@@ -38,13 +38,13 @@ func GenerateJWT(username, email, jwtSecret string) (string, error) {
 }
 
 // ValidateJWT parses and validates a JWT token
-func ValidateJWT(tokenString, jwtSecret string) (*CustomClaims, error) {
+func ValidateJWT(tokenString string, jwtSecret string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Ensure the signing method is HMAC
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtSecret, nil
+		return []byte(jwtSecret), nil
 	})
 
 	if err != nil {
