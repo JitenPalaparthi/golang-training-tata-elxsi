@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
+	"net/http"
+	_ "net/http/pprof"
 	"runtime"
 	"sync"
 	"time"
@@ -9,15 +12,32 @@ import (
 
 func main() {
 
-	ch1 := Generate("Generate-1", time.Millisecond*100, time.Second*1)
-	ch2 := Generate("Generate-2", time.Millisecond*150, time.Second*2)
-	ch3 := Generate("Generate-3", time.Millisecond*200, time.Second*3)
-	ch4 := Generate("Generate-4", time.Millisecond*250, time.Second*4)
+	wg := new(sync.WaitGroup)
+	defer wg.Wait()
+	runtime.SetBlockProfileRate(1) // chennels. select, cond
+	runtime.SetMutexProfileFraction(1)
+	wg.Add(1)
+	go func() {
+		slog.Info("pprof is runnig on port 6060")
+		err := http.ListenAndServe(":6060", nil)
+		if err != nil {
+			slog.Error(err.Error())
+		}
+		wg.Done()
+	}()
+
+	ch1 := Generate("Generate-1", time.Millisecond*100, time.Second*10)
+	ch2 := Generate("Generate-2", time.Millisecond*150, time.Second*9)
+	ch3 := Generate("Generate-3", time.Millisecond*200, time.Second*10)
+	ch4 := Generate("Generate-4", time.Millisecond*250, time.Second*8)
 	outCh := FanIn(ch1, ch2, ch3, ch4)
 
+	//go func() {
 	for v := range outCh {
+		time.Sleep(time.Second * 4)
 		println(v)
 	}
+	//}()
 
 }
 
@@ -44,7 +64,7 @@ func Generate(name string, s time.Duration, d time.Duration) chan string {
 }
 
 func FanIn(chs ...chan string) chan string {
-	outCh := make(chan string, len(chs)) // created it as a buffered channel
+	outCh := make(chan string, 200) // created it as a buffered channel
 	go func() {
 		wg := new(sync.WaitGroup)
 		for _, ch := range chs { // To iterate each chan from a variadic range
