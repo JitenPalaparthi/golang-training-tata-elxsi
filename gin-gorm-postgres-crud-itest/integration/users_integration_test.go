@@ -2,42 +2,100 @@ package integration
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os/exec"
 	"testing"
+	"time"
 
 	"gin-gorm-postgres-crud-itest/internal/app"
 	"gin-gorm-postgres-crud-itest/internal/db"
 
 	"github.com/stretchr/testify/require"
-	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
+	//tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-func startPostgres(t *testing.T) (context.Context, *tcpostgres.PostgresContainer, string) {
+// func startPostgres(t *testing.T) (context.Context, *tcpostgres.PostgresContainer, string) {
+// 	t.Helper()
+
+// 	ctx := context.Background()
+// 	pg, err := tcpostgres.Run(ctx,
+// 		"postgres:16-alpine",
+// 		tcpostgres.WithDatabase("usersdb"),
+// 		tcpostgres.WithUsername("postgres"),
+// 		tcpostgres.WithPassword("postgres"),
+// 		//tcpostgres.WithStartupTimeout(90*time.Second)
+// 		///tcpostgres.
+// 	)
+// 	require.NoError(t, err)
+
+// 	dsn, err := pg.ConnectionString(ctx, "sslmode=disable")
+// 	require.NoError(t, err)
+// 	return ctx, pg, dsn
+// }
+
+var containerMap map[string]string
+
+func init() {
+	containerMap = make(map[string]string)
+}
+func startPostgressContainer() (string, func() error, error) {
+	// docker run -d --name pg -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=usersdb postgres:16
+	cmd := exec.Command("docker", "run", "-d", "--name", "pg", "-p", "5432:5432", "-e", "POSTGRES_USER=postgres", "-e", "POSTGRES_PASSWORD=postgres", "-e", "POSTGRES_DB=usersdb", "postgres:16")
+	if bytes, err := cmd.CombinedOutput(); err != nil {
+		return "", nil, err
+	} else {
+		if containerMap != nil {
+			containerMap["postgres"] = string(bytes)
+		}
+		return string(bytes), func() error {
+			cmd := exec.Command("docker", "rm", "-f", containerMap["postgres"])
+			_, err := cmd.CombinedOutput()
+			return err
+		}, nil
+	}
+}
+
+func waitForPostgres(t *testing.T, dsn string) {
 	t.Helper()
 
-	ctx := context.Background()
-	pg, err := tcpostgres.Run(ctx,
-		"postgres:16-alpine",
-		tcpostgres.WithDatabase("usersdb"),
-		tcpostgres.WithUsername("postgres"),
-		tcpostgres.WithPassword("postgres"),
-		//tcpostgres.WithStartupTimeout(90*time.Second),
-	)
-	require.NoError(t, err)
+	deadline := time.Now().Add(30 * time.Second)
+	var lastErr error
 
-	dsn, err := pg.ConnectionString(ctx, "sslmode=disable")
-	require.NoError(t, err)
-	return ctx, pg, dsn
+	for time.Now().Before(deadline) {
+		gdb, err := db.Connect(dsn)
+		if err == nil {
+			// Close underlying sql.DB to avoid leaks if your db.Connect exposes it.
+			// If db.Connect returns *gorm.DB, you can do:
+			sqlDB, _ := gdb.DB()
+			_ = sqlDB.Close()
+			return
+		}
+		lastErr = err
+		time.Sleep(300 * time.Millisecond)
+	}
+	require.NoError(t, lastErr)
 }
 
 func TestUsersCRUD_Integration(t *testing.T) {
-	ctx, pg, dsn := startPostgres(t)
-	t.Cleanup(func() { _ = pg.Terminate(ctx) })
+	// ctx, pg, dsn := startPostgres(t)
+	// t.Cleanup(func() { _ = pg.Terminate(ctx) })
+
+	//db, err := gorm.Open(postgres.Open("host=localhost user=postgres password=postgres dbname=usersdb port=5432 sslmode=disable TimeZone=Asia/Shanghai"), &gorm.Config{})
+
+	_, rm, err := startPostgressContainer()
+	require.NoError(t, err)
+	defer func() {
+		rm()
+	}()
+
+	dsn := `host=localhost user=postgres password=postgres dbname=usersdb port=5432 sslmode=disable TimeZone=Asia/Shanghai`
+
+	waitForPostgres(t, dsn)
 
 	gdb, err := db.Connect(dsn)
+
 	require.NoError(t, err)
 	require.NoError(t, db.Migrate(gdb))
 
