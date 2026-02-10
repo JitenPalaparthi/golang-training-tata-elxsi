@@ -65,9 +65,10 @@ func main() {
 
 	productHandler := handlers.NewProductHandler(jwtSecret)
 	privateRouter.POST("/product", func(ctx *gin.Context) {
-
 	}, productHandler.Create)
 
+	privateRouter.GET("/user/all", userHandler.GetAll)
+	privateRouter.GET("/user/all/:limit/:offset", userHandler.GetAllByLimit)
 	slog.Info("The application is listening on port:" + PORT)
 	if err := router.Run("0.0.0.0:" + PORT); err != nil {
 		slog.Error(err.Error())

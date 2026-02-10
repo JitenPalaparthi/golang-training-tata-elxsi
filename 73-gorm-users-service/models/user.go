@@ -8,7 +8,7 @@ type User struct {
 
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password string `json:"password" gorm:"->:false"`
 	Mobile   string `json:"mobile"`
 }
 
@@ -18,7 +18,7 @@ type User struct {
 
 type CommonModel struct {
 	ID          uint   `json:"id" gorm:"primary_key"`
-	Status      string `json:"status"`
+	Status      string `json:"status" gorm:"default:active"`
 	LastUpdated uint64 `json:"last_updated" gorm:"column:last_updated"`
 }
 
@@ -38,4 +38,14 @@ func (u *User) Validate() error {
 		return errors.New("Invalid user password")
 	}
 	return nil
+}
+
+type GetUser struct {
+	//gorm.Model // Promoted field
+	CommonModel
+
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Mobile   string `json:"mobile"`
 }

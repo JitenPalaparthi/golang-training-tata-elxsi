@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log/slog"
+	"strconv"
 	"time"
 	"user-service/database"
 	"user-service/models"
@@ -74,7 +75,7 @@ func (uh *UserHandler) Login(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	user, err := uh.UsersDB.GetUserByEmail(userLogin.Email)
+	user, err := uh.UsersDB.GetUserByEmailWithPassword(userLogin.Email)
 	if err != nil {
 		slog.Error(err.Error())
 		ctx.String(400, "Something went wrong")
@@ -104,4 +105,61 @@ func (uh *UserHandler) Login(ctx *gin.Context) {
 
 	ctx.JSON(201, map[string]string{"token": token})
 	//ctx.JSON(201,gin.H{"token":token})
+}
+
+func (uh *UserHandler) GetAll(ctx *gin.Context) {
+	users, err := uh.UsersDB.GetAll()
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Something went wrong")
+		ctx.Abort()
+		return
+	}
+	ctx.JSON(200, users)
+}
+
+func (uh *UserHandler) GetAllByLimit(ctx *gin.Context) {
+
+	limit, ok := ctx.Params.Get("limit")
+
+	if !ok {
+		slog.Error("invalid limit value")
+		ctx.String(400, "limit param is wrong")
+		ctx.Abort()
+		return
+	}
+
+	_limit, err := strconv.Atoi(limit)
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Something went wrong")
+		ctx.Abort()
+		return
+	}
+
+	offset, ok := ctx.Params.Get("offset")
+
+	if !ok {
+		slog.Error("invalid offset value")
+		ctx.String(400, "offset param is wrong")
+		ctx.Abort()
+		return
+	}
+
+	_offset, err := strconv.Atoi(offset)
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Something went wrong")
+		ctx.Abort()
+		return
+	}
+
+	users, err := uh.UsersDB.GetAllByLimit(_limit, _offset)
+	if err != nil {
+		slog.Error(err.Error())
+		ctx.String(400, "Something went wrong")
+		ctx.Abort()
+		return
+	}
+	ctx.JSON(200, users)
 }
